@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	_ "image/png"
+	"math"
 
 	"github.com/palSagnik/hash-visualization.git/models"
 	"github.com/palSagnik/hash-visualization.git/utils"
@@ -15,14 +16,6 @@ const (
 
 
 var pixels [WIDTH][HEIGHT] models.RGBA32
-
-func grayGradient(x float32, y float32) models.Color {
-	return models.Color {
-		R: x,
-		G: x,
-		B: x,
-	}
-}
 
 func renderPixels(f func(x float32, y float32) models.Color) {
 
@@ -41,9 +34,34 @@ func renderPixels(f func(x float32, y float32) models.Color) {
 	}
 }
 
+func grayGradient(x float32, _ float32) models.Color {
+	return models.Color {
+		R: x,
+		G: x,
+		B: x,
+	}
+}
+
+func coolGradient(x float32, y float32) models.Color {
+	if x * y >= 0 {
+		return models.Color {
+			R: x,
+			G: y,
+			B: 1,
+		}
+	} else {
+		r := math.Mod(float64(x), float64(y))
+
+		return models.Color {
+			R: float32(r),
+			G: float32(r),
+			B: float32(r),
+		}
+	}
+}
 
 func main() {
-	renderPixels(grayGradient)
+	renderPixels(coolGradient)
 	filepath := "output.png"
 	if err := utils.WriteRGBAPNG(WIDTH, HEIGHT, pixels, filepath); err != nil {
 		fmt.Printf("Unable to write image: %s", err.Error())
